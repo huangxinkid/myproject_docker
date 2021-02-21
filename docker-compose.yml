@@ -1,0 +1,29 @@
+ version: "3"
+ 
+ services:
+   redis:
+     image: redis:5
+     command: redis-server /etc/redis/redis.conf # 容器启动后启动redis服务器
+     volumes:
+       - myproject_redis_vol:/data # 通过挂载给redis数据备份
+       - ./redis/redis.conf:/etc/redis/redis.conf # 挂载redis配置文件
+     ports:
+       - "6379:6379"
+     restart: always # always表容器运行发生错误时一直重启
+ 
+   db:
+     image: mysql:5.7
+     environment:
+       - MYSQL_ROOT_PASSWORD=123456 # 数据库密码
+       - MYSQL_DATABASE=mysite_db # 数据库名称
+       - MYSQL_USER=root # 数据库用户名
+       - MYSQL_PASSWORD=123456 # 用户密码
+ 
+     volumes:
+       - myproject_db_vol:/var/lib/mysql:rw # 挂载数据库数据, 可读可写
+       - ./mysql/conf/my.cnf:/etc/mysql/my.cnf # 挂载配置文件
+       - ./mysql/init:/docker-entrypoint-initdb.d/ # 挂载数据初始化sql脚本
+     ports:
+       - "3306:3306" # 与配置文件保持一致
+     restart: always
+  
